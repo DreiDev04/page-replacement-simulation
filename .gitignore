@@ -1,0 +1,10 @@
+# Python build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+# PyInstaller artifacts
+dist/
+*.spec
+# Keep the executable
+!dist/page_replacement.exe
