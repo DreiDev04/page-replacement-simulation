@@ -14,6 +14,7 @@ class PageReplacementSimulator:
         self.generated_pages = []
         self.current_index = 0
         self.frames = []
+        self.frame_history = []  # Track history of each frame's state
         self.page_faults = 0
         self.animation_speed = 1.0
         self.animation_id = None
@@ -124,9 +125,23 @@ class PageReplacementSimulator:
             content_frame, text="Memory Frames", padding=10)
         self.frames_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.frames_canvas = tk.Canvas(self.frames_frame, bg="white", highlightthickness=1,
-                                       highlightbackground="gray")
+        # Create a frame to hold canvas and scrollbar
+        canvas_frame = ttk.Frame(self.frames_frame)
+        canvas_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Add horizontal scrollbar
+        x_scroll = ttk.Scrollbar(canvas_frame, orient=tk.HORIZONTAL)
+        x_scroll.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # Create canvas with scrollbar
+        self.frames_canvas = tk.Canvas(canvas_frame, bg="white",
+                                       highlightthickness=1,
+                                       highlightbackground="gray",
+                                       xscrollcommand=x_scroll.set)
         self.frames_canvas.pack(fill=tk.BOTH, expand=True, pady=5)
+
+        # Configure scrollbar
+        x_scroll.config(command=self.frames_canvas.xview)
 
         # Simulation log (right)
         self.log_frame = ttk.LabelFrame(
@@ -233,43 +248,73 @@ class PageReplacementSimulator:
         elif index == len(self.generated_pages) - 1 and x > self.sequence_canvas.winfo_width() - 2*box_size:
             # Highlight the last page shown after ellipsis
             x = x_start + (self.sequence_canvas.winfo_width() - 2 *
-                           box_size) // (box_size + padding) * (box_size + padding) + 30
+                           box_size) // (box_size + padding) + 30
 
         # Create highlight rectangle
         self.sequence_canvas.create_rectangle(x-2, 3, x+box_size+2, 7+box_size,
                                               outline="red", width=2, tags="highlight")
 
     def draw_frames(self, highlight_index=-1):
-        """Draw memory frames"""
+        """Draw memory frames in a grid format"""
         self.frames_canvas.delete("all")
 
         if not self.frames:
             return
 
-        # Get available space
-        width = self.frames_canvas.winfo_width()
-        height = self.frames_canvas.winfo_height()
+        # Calculate cell dimensions
+        cell_size = 40
+        padding = 10
+        x_start = 50  # Leave space for frame numbers on the left
+        y_start = 20
 
-        frame_width = min(100, width - 20)
-        frame_height = min(60, (height - 20) // len(self.frames))
-        start_y = 20
+        # Calculate total width needed
+        total_width = x_start + \
+            (len(self.frame_history[0])
+             if self.frame_history else 0) * (cell_size + padding)
+        total_height = y_start + (len(self.frames) + 1) * (cell_size + padding)
 
-        # Draw each frame
-        for i, page in enumerate(self.frames):
-            y = start_y + i * (frame_height + 10)
+        # Configure canvas scrolling
+        self.frames_canvas.configure(scrollregion=(
+            0, 0, total_width + 50, total_height + 20))
 
-            # Determine if this frame should be highlighted
-            fill_color = "#ff9999" if i == highlight_index else "#e0e0ff"
+        # Draw the current sequence at the top
+        self.frames_canvas.create_text(x_start - 30, y_start + cell_size/2,
+                                       text="Ref:", anchor=tk.W, font=("Arial", 10, "bold"))
 
-            # Draw frame box
-            self.frames_canvas.create_rectangle(10, y, 10 + frame_width, y + frame_height,
-                                                fill=fill_color, outline="black")
-            self.frames_canvas.create_text(10 + frame_width/2, y + frame_height/2,
-                                           text=str(page), font=("Arial", 14, "bold"))
+        for i in range(self.current_index + 1):
+            x = x_start + i * (cell_size + padding)
+            page = self.generated_pages[i]
+            # Draw reference string value
+            self.frames_canvas.create_text(x + cell_size/2, y_start + cell_size/2,
+                                           text=str(page), font=("Arial", 12))
 
-            # Label the frame
-            self.frames_canvas.create_text(10 + frame_width + 10, y + frame_height/2,
-                                           text=f"Frame {i}", anchor=tk.W)
+        # Draw frame states
+        for frame_num in range(len(self.frames)):
+            y = y_start + (frame_num + 1) * (cell_size + padding)
+
+            # Draw frame number on the left
+            self.frames_canvas.create_text(x_start - 30, y + cell_size/2,
+                                           text=f"F{frame_num}", anchor=tk.W, font=("Arial", 10, "bold"))
+
+            # Draw historical states for this frame
+            history = self.get_frame_history(frame_num)
+            for i, value in enumerate(history):
+                x = x_start + i * (cell_size + padding)
+
+                # Draw cell
+                fill_color = "#ff9999" if i == self.current_index and frame_num == highlight_index else "#e0e0ff"
+                self.frames_canvas.create_rectangle(x, y, x + cell_size, y + cell_size,
+                                                    fill=fill_color, outline="black")
+
+                # Draw value
+                if value is not None:
+                    self.frames_canvas.create_text(x + cell_size/2, y + cell_size/2,
+                                                   text=str(value), font=("Arial", 12))
+
+        # Auto-scroll to show the current step
+        if self.current_index > 0:
+            x_view = (self.current_index * (cell_size + padding)) / total_width
+            self.frames_canvas.xview_moveto(max(0, x_view - 0.7))
 
     def prepare_algorithm(self, name):
         """Common setup for all algorithms"""
@@ -287,7 +332,10 @@ class PageReplacementSimulator:
 
             # Reset simulation state
             self.current_index = 0
-            self.frames = []
+            # Initialize empty frames with None
+            self.frames = [None] * frame_size
+            # Initialize frame history
+            self.frame_history = [[] for _ in range(frame_size)]
             self.page_faults = 0
 
             # Update UI
@@ -314,6 +362,15 @@ class PageReplacementSimulator:
             messagebox.showerror(
                 "Invalid Input", "Please enter a valid number for frames.")
             return False
+
+    def get_frame_history(self, frame_num):
+        """Get the history of states for a specific frame"""
+        return self.frame_history[frame_num]
+
+    def update_frame_history(self):
+        """Update the history of all frames with their current state"""
+        for i, frame in enumerate(self.frames):
+            self.frame_history[i].append(frame)
 
     def run_fifo(self):
         """Setup FIFO algorithm simulation"""
@@ -422,22 +479,26 @@ class PageReplacementSimulator:
 
         if current_page not in self.frames:
             page_fault = True
-            if len(self.frames) < frame_size:
-                self.frames.append(current_page)
-                replaced_index = len(self.frames) - 1
+            # Find first empty frame or use FIFO replacement
+            if None in self.frames:
+                replaced_index = self.frames.index(None)
+                self.frames[replaced_index] = current_page
             else:
+                # FIFO replacement
                 replaced_page = self.frames[0]
-                self.frames.pop(0)
-                self.frames.append(current_page)
-                replaced_index = len(self.frames) - 1
+                self.frames = self.frames[1:] + [current_page]
+                replaced_index = frame_size - 1
             self.page_faults += 1
+
+        # Update frame history
+        self.update_frame_history()
 
         # Update log
         if page_fault:
             if replaced_page is not None:
                 log_msg = f"Page {current_page}: Not in frames, replacing {replaced_page} (FIFO) -> Page Fault!\n"
             else:
-                log_msg = f"Page {current_page}: Not in frames, adding to frame -> Page Fault!\n"
+                log_msg = f"Page {current_page}: Not in frames, adding to empty frame {replaced_index} -> Page Fault!\n"
         else:
             log_msg = f"Page {current_page}: Already in frames -> Page Hit\n"
 
@@ -460,26 +521,31 @@ class PageReplacementSimulator:
 
         if current_page not in self.frames:
             page_fault = True
-            if len(self.frames) < frame_size:
-                self.frames.append(current_page)
-                replaced_index = len(self.frames) - 1
+            # Find first empty frame or use LRU replacement
+            if None in self.frames:
+                replaced_index = self.frames.index(None)
+                self.frames[replaced_index] = current_page
             else:
+                # Move all pages one position back and put new page at end
                 replaced_page = self.frames[0]
-                self.frames.pop(0)
-                self.frames.append(current_page)
-                replaced_index = len(self.frames) - 1
+                self.frames = self.frames[1:] + [current_page]
+                replaced_index = frame_size - 1
             self.page_faults += 1
         else:
-            # Move to the end (most recently used)
-            self.frames.remove(current_page)
-            self.frames.append(current_page)
+            # Move accessed page to the end (most recently used)
+            current_index = self.frames.index(current_page)
+            self.frames = self.frames[:current_index] + \
+                self.frames[current_index + 1:] + [current_page]
+
+        # Update frame history
+        self.update_frame_history()
 
         # Update log
         if page_fault:
             if replaced_page is not None:
                 log_msg = f"Page {current_page}: Not in frames, replacing {replaced_page} (LRU) -> Page Fault!\n"
             else:
-                log_msg = f"Page {current_page}: Not in frames, adding to frame -> Page Fault!\n"
+                log_msg = f"Page {current_page}: Not in frames, adding to empty frame {replaced_index} -> Page Fault!\n"
         else:
             log_msg = f"Page {current_page}: Already in frames, moving to MRU position -> Page Hit\n"
 
@@ -502,9 +568,10 @@ class PageReplacementSimulator:
 
         if current_page not in self.frames:
             page_fault = True
-            if len(self.frames) < frame_size:
-                self.frames.append(current_page)
-                replaced_index = len(self.frames) - 1
+            # Find first empty frame or use OPT replacement
+            if None in self.frames:
+                replaced_index = self.frames.index(None)
+                self.frames[replaced_index] = current_page
             else:
                 # Find page that won't be used for the longest time
                 farthest_use = -1
@@ -524,12 +591,15 @@ class PageReplacementSimulator:
                 self.frames[replaced_index] = current_page
             self.page_faults += 1
 
+        # Update frame history
+        self.update_frame_history()
+
         # Update log
         if page_fault:
             if replaced_page is not None:
                 log_msg = f"Page {current_page}: Not in frames, replacing {replaced_page} (OPT) -> Page Fault!\n"
             else:
-                log_msg = f"Page {current_page}: Not in frames, adding to frame -> Page Fault!\n"
+                log_msg = f"Page {current_page}: Not in frames, adding to empty frame {replaced_index} -> Page Fault!\n"
         else:
             log_msg = f"Page {current_page}: Already in frames -> Page Hit\n"
 
