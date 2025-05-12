@@ -4,7 +4,4 @@ __pycache__/
 *$py.class
 build/
 # PyInstaller artifacts
-dist/
 *.spec
-# Keep the executable
-!dist/page_replacement.exe
