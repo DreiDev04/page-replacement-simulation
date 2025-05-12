@@ -117,10 +117,6 @@ python src/main.py
 ![OPT Algorithm](screenshots/opt-demo.png)
 *Optimal algorithm demonstrating theoretical best performance*
 
-### Page Fault Handling
-![Page Fault Example](screenshots/page-fault.png)
-*Example of how page faults are handled and visualized*
-Screenshots will be stored in the `screenshots` folder.
 
 ## Contributing
 
