@@ -2,7 +2,9 @@
 
 A visual simulator for understanding memory page replacement algorithms implemented using Python and Tkinter. This application helps in learning and comparing different page replacement algorithms: FIFO (First-In-First-Out), LRU (Least Recently Used), and OPT (Optimal).
 
-![Main Interface](screenshots/v1/main-interface.png)
+<div align="center">
+  <img src="screenshots/v2/main-interface.png" width="800" alt="Main Interface">
+</div>
 
 ## Features
 
@@ -112,19 +114,21 @@ python src/main.py
 
 ## Screenshots
 
-### Main Interface
-![Main Interface](screenshots/v2/main-interface.png)
-*Main application window showing control panel and visualization areas*
-
 ### Algorithm Demonstrations
-![FIFO Algorithm](screenshots/v2/fifo-demo.png)
-*FIFO page replacement algorithm in action with page fault visualization*
 
-![LRU Algorithm](screenshots/v2/lru-demo.png)
-*LRU algorithm showing page replacement based on usage history*
+<div align="center">
+  <h4>FIFO (First-In-First-Out) Algorithm</h4>
+  <img src="screenshots/v2/fifo-demo.png" width="800" alt="FIFO Algorithm">
+  <p><em>FIFO page replacement algorithm in action with page fault visualization</em></p>
 
-![OPT Algorithm](screenshots/v2/opt-demo.png)
-*Optimal algorithm demonstrating theoretical best performance*
+  <h4>LRU (Least Recently Used) Algorithm</h4>
+  <img src="screenshots/v2/lru-demo.png" width="800" alt="LRU Algorithm">
+  <p><em>LRU algorithm showing page replacement based on usage history</em></p>
+
+  <h4>OPT (Optimal) Algorithm</h4>
+  <img src="screenshots/v2/opt-demo.png" width="800" alt="OPT Algorithm">
+  <p><em>Optimal algorithm demonstrating theoretical best performance</em></p>
+</div>
 
 ## Building an Executable
 
