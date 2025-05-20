@@ -2,6 +2,8 @@
 
 A visual simulator for understanding memory page replacement algorithms implemented using Python and Tkinter. This application helps in learning and comparing different page replacement algorithms: FIFO (First-In-First-Out), LRU (Least Recently Used), and OPT (Optimal).
 
+![Main Interface](screenshots/v2/main-interface.png)
+
 ## Features
 
 - Interactive visualization of page replacement algorithms
@@ -91,30 +93,52 @@ python src/main.py
    - Labels each frame for easy reference
 
 4. **Simulation Log**
-   - Detailed text log of operations
-   - Shows page hits and faults
+   - Detailed text log of operations   - Shows page hits and faults
    - Tracks replacement decisions
+   - Auto-scrolls to show latest events
 
 5. **Status Bar**
    - Shows current operation status
    - Displays algorithm state and progress
+   - Shows total page fault count on completion
+
+## Screenshots
+
+### FIFO Algorithm Demo
+![FIFO Demo](screenshots/v2/fifo-demo.png)
+
+### LRU Algorithm Demo
+![LRU Demo](screenshots/v2/lru-demo.png)
+
+### OPT Algorithm Demo
+![OPT Demo](screenshots/v2/opt-demo.png)
+
+## Building an Executable
+
+To build a standalone executable:
+
+```powershell
+pyinstaller src/main.py
+```
+
+The executable will be created in the `dist` directory.
 
 ## Screenshots
 
 ### Main Interface
-![Main Interface](screenshots/main-interface.png)
+![Main Interface](screenshots/v2/main-interface.png)
 *Main application window showing control panel and visualization areas*
 
 ### FIFO Algorithm Demonstration
-![FIFO Algorithm](screenshots/fifo-demo.png)
+![FIFO Algorithm](screenshots/v2/fifo-demo.png)
 *FIFO page replacement algorithm in action with page fault visualization*
 
 ### LRU Algorithm Demonstration
-![LRU Algorithm](screenshots/lru-demo.png)
+![LRU Algorithm](screenshots/v2/lru-demo.png)
 *LRU algorithm showing page replacement based on usage history*
 
 ### OPT Algorithm Demonstration
-![OPT Algorithm](screenshots/opt-demo.png)
+![OPT Algorithm](screenshots/v2/opt-demo.png)
 *Optimal algorithm demonstrating theoretical best performance*
 
 
