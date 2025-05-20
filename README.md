@@ -3,7 +3,7 @@
 A visual simulator for understanding memory page replacement algorithms implemented using Python and Tkinter. This application helps in learning and comparing different page replacement algorithms: FIFO (First-In-First-Out), LRU (Least Recently Used), and OPT (Optimal).
 
 <div align="center">
-  <img src="screenshots/v2/main-interface.png" width="800" alt="Main Interface">
+  <img src="screenshots/v1/main-interface.png" width="800" alt="Main Interface">
 </div>
 
 ## Features
