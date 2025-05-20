@@ -2,7 +2,7 @@
 
 A visual simulator for understanding memory page replacement algorithms implemented using Python and Tkinter. This application helps in learning and comparing different page replacement algorithms: FIFO (First-In-First-Out), LRU (Least Recently Used), and OPT (Optimal).
 
-![Main Interface](screenshots/v2/main-interface.png)
+![Main Interface](screenshots/v1/main-interface.png)
 
 ## Features
 
@@ -26,15 +26,22 @@ A visual simulator for understanding memory page replacement algorithms implemen
 ## Requirements
 
 - Python 3.x
-- Tkinter (usually comes with Python)
+- Tkinter (comes with Python)
 
 ## Installation
 
 1. Clone this repository or download the source code
-2. Install the required dependencies:
+2. (Optional) Create and activate a virtual environment:
+```powershell
+python -m venv env
+.\env\Scripts\Activate.ps1
+```
+3. Install the required dependencies:
 ```powershell
 pip install -r requirements.txt
 ```
+
+Note: The requirements.txt includes only the dependencies needed for building the executable. The base application uses only Python's standard library.
 
 ## Usage
 
@@ -93,7 +100,8 @@ python src/main.py
    - Labels each frame for easy reference
 
 4. **Simulation Log**
-   - Detailed text log of operations   - Shows page hits and faults
+   - Detailed text log of operations
+   - Shows page hits and faults
    - Tracks replacement decisions
    - Auto-scrolls to show latest events
 
@@ -104,14 +112,19 @@ python src/main.py
 
 ## Screenshots
 
-### FIFO Algorithm Demo
-![FIFO Demo](screenshots/v2/fifo-demo.png)
+### Main Interface
+![Main Interface](screenshots/v2/main-interface.png)
+*Main application window showing control panel and visualization areas*
 
-### LRU Algorithm Demo
-![LRU Demo](screenshots/v2/lru-demo.png)
+### Algorithm Demonstrations
+![FIFO Algorithm](screenshots/v2/fifo-demo.png)
+*FIFO page replacement algorithm in action with page fault visualization*
 
-### OPT Algorithm Demo
-![OPT Demo](screenshots/v2/opt-demo.png)
+![LRU Algorithm](screenshots/v2/lru-demo.png)
+*LRU algorithm showing page replacement based on usage history*
+
+![OPT Algorithm](screenshots/v2/opt-demo.png)
+*Optimal algorithm demonstrating theoretical best performance*
 
 ## Building an Executable
 
@@ -122,24 +135,6 @@ pyinstaller src/main.py
 ```
 
 The executable will be created in the `dist` directory.
-
-## Screenshots
-
-### Main Interface
-![Main Interface](screenshots/v2/main-interface.png)
-*Main application window showing control panel and visualization areas*
-
-### FIFO Algorithm Demonstration
-![FIFO Algorithm](screenshots/v2/fifo-demo.png)
-*FIFO page replacement algorithm in action with page fault visualization*
-
-### LRU Algorithm Demonstration
-![LRU Algorithm](screenshots/v2/lru-demo.png)
-*LRU algorithm showing page replacement based on usage history*
-
-### OPT Algorithm Demonstration
-![OPT Algorithm](screenshots/v2/opt-demo.png)
-*Optimal algorithm demonstrating theoretical best performance*
 
 
 ## Contributing
